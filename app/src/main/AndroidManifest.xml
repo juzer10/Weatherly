@@ -19,7 +19,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Forecast"/>
+            android:name=".Forecast"
+            android:parentActivityName=".DisplayWeather"/>
     </application>
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>

@@ -176,6 +176,7 @@ public class Forecast extends Activity {
         switch (menu.getItemId()) {
             case android.R.id.home:
                 NavUtils.navigateUpFromSameTask(this);
+                overridePendingTransition(R.anim.transition_out, R.anim.transition_in);
                 return true;
         }
         return super.onOptionsItemSelected(menu);

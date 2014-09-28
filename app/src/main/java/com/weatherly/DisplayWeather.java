@@ -71,7 +71,7 @@ public class DisplayWeather extends Activity implements LocationListener {
         else if(currentTemp >= 0 && currentTemp <= 20)
             mLinearLayout.setBackgroundColor(Color.BLUE);
         else if(currentTemp > 20 && currentTemp <=30)
-            mLinearLayout.setBackgroundColor(Color.YELLOW);
+            mLinearLayout.setBackgroundColor(getResources().getColor(R.color.yellow));
         else
             mLinearLayout.setBackgroundColor(Color.RED);
         temp.setText(weather.getTemp()+" °C");
@@ -137,7 +137,10 @@ public class DisplayWeather extends Activity implements LocationListener {
 
     public void getForecast(View view) {
         Intent i = new Intent(this, Forecast.class);
+        i.putExtra("lat", ""+latitude);
+        i.putExtra("lon", ""+longitude);
         startActivity(i);
+        overridePendingTransition(R.anim.transition_out, R.anim.transition_in);
     }
 
     @Override
@@ -153,9 +156,7 @@ public class DisplayWeather extends Activity implements LocationListener {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
+
         return super.onOptionsItemSelected(item);
     }
     @Override

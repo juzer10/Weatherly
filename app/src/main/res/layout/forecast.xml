@@ -4,8 +4,52 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 <TextView
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:textSize="24sp"
+    android:gravity="center"
+    android:layout_weight="1"
+    android:layout_gravity="center_horizontal"
     android:text="@string/new_forecast"/>
+
+    <TextView
+        android:id="@+id/forecast1"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
+
+    <TextView
+        android:id="@+id/forecast2"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
+
+    <TextView
+        android:id="@+id/forecast3"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
+
+    <TextView
+        android:id="@+id/forecast4"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
+
+    <TextView
+        android:id="@+id/forecast5"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"/>
 
 </LinearLayout>

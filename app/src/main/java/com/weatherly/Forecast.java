@@ -11,8 +11,8 @@ public class Forecast extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EditText weather = (EditText)findViewById(R.id.weather);
-        String city = weather.getText().toString();
+        setContentView(R.layout.forecast);
+
 
 
     }

@@ -4,6 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
@@ -14,7 +18,9 @@ import android.os.StrictMode;
 import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,43 +55,27 @@ public class DisplayWeather extends Activity implements LocationListener {
     protected void onCreate(Bundle savedInstanceState) {
         weather = new Weather();
         setContentView(R.layout.display_weather);
-        StrictMode.ThreadPolicy policy = new StrictMode.
-                ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
         super.onCreate(savedInstanceState);
-
+        LinearLayout mLinearLayout = (LinearLayout) findViewById(R.id.full);
         TextView city = (TextView) findViewById(R.id.city);
         TextView temp = (TextView) findViewById(R.id.temp);
         Button forecast = (Button) findViewById(R.id.forecast);
+        getLocation(weather);
+        getTemperature(weather.getLatitude(), weather.getLongitude());
+        calculateTemp();
 
-        lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        Criteria criteria = new Criteria();
-        bestProvider = lm.getBestProvider(criteria, false);
-        Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-        //lm.requestLocationUpdates(bestProvider, 100, 1, this);
-
-        if (location != null) {
-            longitude = location.getLongitude();
-            longitude = Math.floor(longitude*1000+0.5)/1000;
-            latitude = location.getLatitude();
-            latitude = Math.floor(latitude*1000+0.5)/1000;
-            Toast.makeText(this, ""+longitude, Toast.LENGTH_SHORT).show();
-        } else {
-            // leads to the settings because there is no last known location
-            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-            startActivity(intent);
-        }
-        //  mLocationClient = new LocationClient(this, this, this);
-        //  mCurrentLocation = mLocationClient.getLastLocation();
-        getTemperature(latitude, longitude);
-       calculateTemp();
-     //   Toast.makeText(this, arr, Toast.LENGTH_SHORT).show();
-       // String[] t = arr.split("|");
-        //t[0] = ""+(Double.parseDouble(t[0])-273);
-        temp.setText(weather.getTemp());
+        //Change background color based on Current Temperature
+        double currentTemp = Double.parseDouble(weather.getTemp());
+        if(currentTemp < 0)
+            mLinearLayout.setBackgroundColor(Color.CYAN);
+        else if(currentTemp >= 0 && currentTemp <= 20)
+            mLinearLayout.setBackgroundColor(Color.BLUE);
+        else if(currentTemp > 20 && currentTemp <=30)
+            mLinearLayout.setBackgroundColor(Color.YELLOW);
+        else
+            mLinearLayout.setBackgroundColor(Color.RED);
+        temp.setText(weather.getTemp()+" °C");
         city.setText(weather.getDesc());
-        //Toast.makeText(this, sb, Toast.LENGTH_LONG).show();
     }
 
     public void getTemperature(double lat, double longi) {
@@ -123,12 +113,11 @@ public class DisplayWeather extends Activity implements LocationListener {
 
 
     public void calculateTemp() {
-        String desc=null;
         try {
             JSONObject js = new JSONObject(sb.toString());
-            Toast.makeText(this, ""+js, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, ""+js, Toast.LENGTH_SHORT).show();
             JSONObject main  = js.getJSONObject("main");
-            Toast.makeText(this, "2", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "2", Toast.LENGTH_SHORT).show();
             JSONArray weather1  = js.getJSONArray("weather");
             for(int i=0;i<weather1.length();i++)
             {
@@ -146,7 +135,7 @@ public class DisplayWeather extends Activity implements LocationListener {
         }
     }
 
-    public void getForecast() {
+    public void getForecast(View view) {
         Intent i = new Intent(this, Forecast.class);
         startActivity(i);
     }
@@ -203,11 +192,37 @@ public class DisplayWeather extends Activity implements LocationListener {
     public void onProviderDisabled(String s) {
 
     }
+    public void getLocation(Weather weather) {
+        StrictMode.ThreadPolicy policy = new StrictMode.
+                ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+        lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
+
+        Criteria criteria = new Criteria();
+        bestProvider = lm.getBestProvider(criteria, false);
+        Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        if (location != null) {
+            longitude = location.getLongitude();
+            weather.setLongitude(Math.floor(longitude * 1000 + 0.5) / 1000);
+            latitude = location.getLatitude();
+            weather.setLatitude(Math.floor(latitude * 1000 + 0.5) / 1000);
+
+            //Toast.makeText(this, "" + longitude, Toast.LENGTH_SHORT).show();
+        } else {
+            // leads to the settings because there is no last known location
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent);
+        }
+    }
 }
 class Weather {
     String temp;
     String desc;
+    double latitude;
+    double longitude;
     Weather() {
+        latitude = 0.0;
+        longitude = 0.0;
         temp = null;
         desc = null;
     }
@@ -220,6 +235,14 @@ class Weather {
         this.desc = desc;
     }
 
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
     public String getTemp() {
         return temp;
     }
@@ -227,4 +250,13 @@ class Weather {
     public String getDesc() {
         return desc;
     }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
 }

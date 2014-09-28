@@ -14,11 +14,17 @@ import android.os.StrictMode;
 import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.location.LocationClient;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,20 +38,26 @@ import java.util.logging.Logger;
 
 
 public class DisplayWeather extends Activity implements LocationListener {
-
+    Weather weather;
     double latitude;
     double longitude;
     String bestProvider;
     public StringBuilder sb = new StringBuilder();
-    String obj;
     LocationManager lm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        weather = new Weather();
+        setContentView(R.layout.display_weather);
         StrictMode.ThreadPolicy policy = new StrictMode.
                 ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         super.onCreate(savedInstanceState);
+
+        TextView city = (TextView) findViewById(R.id.city);
+        TextView temp = (TextView) findViewById(R.id.temp);
+        Button forecast = (Button) findViewById(R.id.forecast);
+
         lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
         Criteria criteria = new Criteria();
@@ -55,7 +67,10 @@ public class DisplayWeather extends Activity implements LocationListener {
 
         if (location != null) {
             longitude = location.getLongitude();
+            longitude = Math.floor(longitude*1000+0.5)/1000;
             latitude = location.getLatitude();
+            latitude = Math.floor(latitude*1000+0.5)/1000;
+            Toast.makeText(this, ""+longitude, Toast.LENGTH_SHORT).show();
         } else {
             // leads to the settings because there is no last known location
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
@@ -63,14 +78,19 @@ public class DisplayWeather extends Activity implements LocationListener {
         }
         //  mLocationClient = new LocationClient(this, this, this);
         //  mCurrentLocation = mLocationClient.getLastLocation();
-        setContentView(R.layout.display_weather);
-       getTemperature(latitude, longitude);
-        Toast.makeText(this, sb, Toast.LENGTH_LONG).show();
+        getTemperature(latitude, longitude);
+       calculateTemp();
+     //   Toast.makeText(this, arr, Toast.LENGTH_SHORT).show();
+       // String[] t = arr.split("|");
+        //t[0] = ""+(Double.parseDouble(t[0])-273);
+        temp.setText(weather.getTemp());
+        city.setText(weather.getDesc());
+        //Toast.makeText(this, sb, Toast.LENGTH_LONG).show();
     }
 
     public void getTemperature(double lat, double longi) {
         try {
-            URL u = new URL("http://api.openweathermap.org/data/2.5/weather?lat=35.12321&lon=139.23231321");
+            URL u = new URL("http://api.openweathermap.org/data/2.5/weather?lat="+lat+"&lon="+longi);
             HttpURLConnection c = (HttpURLConnection) u.openConnection();
             c.setRequestMethod("GET");
             c.setRequestProperty("Content-length", "0");
@@ -87,11 +107,12 @@ public class DisplayWeather extends Activity implements LocationListener {
                     BufferedReader br = new BufferedReader(new InputStreamReader(c.getInputStream()));
                     String line;
                     while ((line = br.readLine()) != null) {
-                        sb.append(line+"\n");
-                        Toast.makeText(this, line, Toast.LENGTH_SHORT);
+                        sb.append(line);
+
                     }
                     br.close();
             }
+
 
         } catch (MalformedURLException ex) {
            // Logger.getLogger(DebugServer.class.getName()).log(Level.SEVERE, null, ex);
@@ -101,7 +122,34 @@ public class DisplayWeather extends Activity implements LocationListener {
     }
 
 
+    public void calculateTemp() {
+        String desc=null;
+        try {
+            JSONObject js = new JSONObject(sb.toString());
+            Toast.makeText(this, ""+js, Toast.LENGTH_SHORT).show();
+            JSONObject main  = js.getJSONObject("main");
+            Toast.makeText(this, "2", Toast.LENGTH_SHORT).show();
+            JSONArray weather1  = js.getJSONArray("weather");
+            for(int i=0;i<weather1.length();i++)
+            {
+                JSONObject jsonobject = weather1.getJSONObject(i);
+                weather.setDesc(jsonobject.getString("description"));
+            }
+            String t = ""+Math.round((Double.parseDouble(main.getString("temp")))-273);
+            weather.setTemp(t);
+            //temp +="|"+ weather.getString("description");
+           // Toast.makeText(this, ""+temp+"|||"+desc, Toast.LENGTH_SHORT).show();
 
+        }
+        catch (JSONException e) {
+            Toast.makeText(this, "error", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void getForecast() {
+        Intent i = new Intent(this, Forecast.class);
+        startActivity(i);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -154,5 +202,29 @@ public class DisplayWeather extends Activity implements LocationListener {
     @Override
     public void onProviderDisabled(String s) {
 
+    }
+}
+class Weather {
+    String temp;
+    String desc;
+    Weather() {
+        temp = null;
+        desc = null;
+    }
+
+    public void setTemp(String temp) {
+        this.temp = temp;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
+    public String getTemp() {
+        return temp;
+    }
+
+    public String getDesc() {
+        return desc;
     }
 }

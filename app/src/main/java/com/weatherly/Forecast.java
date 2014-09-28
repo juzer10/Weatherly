@@ -2,7 +2,11 @@ package com.weatherly;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +21,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Calendar;
 
 /**
  * Created by juzer_000 on 9/27/2014.
@@ -38,19 +43,74 @@ public class Forecast extends Activity {
         TextView forecast4 = (TextView) findViewById(R.id.forecast4);
         TextView forecast5 = (TextView) findViewById(R.id.forecast5);
 
+        getActionBar().setDisplayHomeAsUpEnabled(true);
+
         Intent in = getIntent();
         latitude = Double.parseDouble(in.getStringExtra("lat"));
         longitude = Double.parseDouble(in.getStringExtra("lon"));
 
         getForecast(latitude, longitude);
         calculateForecast();
+        Calendar calendar = Calendar.getInstance();
+        int day = calendar.get(Calendar.DAY_OF_WEEK);
 
-        forecast1.setText(weather[0].getTemp()+"°C - "+weather[0].getDesc());
-        forecast2.setText(weather[1].getTemp()+"°C - "+weather[1].getDesc());
-        forecast3.setText(weather[2].getTemp()+"°C - "+weather[2].getDesc());
-        forecast4.setText(weather[3].getTemp()+"°C - "+weather[3].getDesc());
-        forecast5.setText(weather[4].getTemp()+"°C - "+weather[4].getDesc());
 
+        forecast1.setText(getDay(day+1)+" - "+weather[0].getTemp()+"°C - "+weather[0].getDesc());
+        forecast2.setText(getDay(day+2)+" - "+weather[1].getTemp()+"°C - "+weather[1].getDesc());
+        forecast3.setText(getDay(day+3)+" - "+weather[2].getTemp()+"°C - "+weather[2].getDesc());
+        forecast4.setText(getDay(day+4)+" - "+weather[3].getTemp()+"°C - "+weather[3].getDesc());
+        forecast5.setText(getDay(day+5)+" - "+weather[4].getTemp()+"°C - "+weather[4].getDesc());
+
+
+        setBackground(forecast1, weather[0]);
+        setBackground(forecast2, weather[1]);
+        setBackground(forecast3, weather[2]);
+        setBackground(forecast4, weather[3]);
+        setBackground(forecast5, weather[4]);
+
+    }
+
+    public void setBackground(TextView tv, Weather weather) {
+        double currentTemp = Double.parseDouble(weather.getTemp());
+        if(currentTemp < 0)
+            tv.setBackgroundColor(Color.CYAN);
+        else if(currentTemp >= 0 && currentTemp <= 20)
+            tv.setBackgroundColor(Color.BLUE);
+        else if(currentTemp > 20 && currentTemp <=30)
+            tv.setBackgroundColor(getResources().getColor(R.color.yellow));
+        else
+            tv.setBackgroundColor(Color.RED);
+    }
+
+    public String getDay(int day) {
+        String today = "";
+        if(day > 7)
+            day = day%7;
+        switch (day) {
+            case Calendar.SUNDAY:
+                today = "Sun";
+                break;
+            case Calendar.MONDAY:
+                today = "Mon";
+                break;
+            case Calendar.TUESDAY:
+                today = "Tue";
+                break;
+            case Calendar.WEDNESDAY:
+                today = "Wed";
+                break;
+            case Calendar.THURSDAY:
+                today = "Thu";
+                break;
+            case Calendar.FRIDAY:
+                today = "Fri";
+                break;
+            case Calendar.SATURDAY:
+                today = "Sat";
+                break;
+
+        }
+        return today;
     }
 
     public void getForecast(double lat, double longi) {
@@ -109,5 +169,20 @@ public class Forecast extends Activity {
         catch (JSONException e) {
             Toast.makeText(this, "error", Toast.LENGTH_SHORT).show();
         }
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        switch (menu.getItemId()) {
+            case android.R.id.home:
+                NavUtils.navigateUpFromSameTask(this);
+                return true;
+        }
+        return super.onOptionsItemSelected(menu);
+    }
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        overridePendingTransition(R.anim.transition_out, R.anim.transition_in);
     }
 }

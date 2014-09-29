@@ -2,16 +2,11 @@ package com.weatherly;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentSender;
-import android.graphics.Canvas;
+import android.content.Intent;;
 import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.drawable.Drawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationManager;
-import android.location.Location;
 import android.location.LocationListener;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -56,10 +51,12 @@ public class DisplayWeather extends Activity implements LocationListener {
         weather = new Weather();
         setContentView(R.layout.display_weather);
         super.onCreate(savedInstanceState);
+
         LinearLayout mLinearLayout = (LinearLayout) findViewById(R.id.full);
         TextView city = (TextView) findViewById(R.id.city);
         TextView temp = (TextView) findViewById(R.id.temp);
         Button forecast = (Button) findViewById(R.id.forecast);
+
         getLocation(weather);
         getTemperature(weather.getLatitude(), weather.getLongitude());
         calculateTemp();
@@ -67,9 +64,9 @@ public class DisplayWeather extends Activity implements LocationListener {
         //Change background color based on Current Temperature
         double currentTemp = Double.parseDouble(weather.getTemp());
         if(currentTemp < 0)
-            mLinearLayout.setBackgroundColor(Color.CYAN);
+            mLinearLayout.setBackgroundColor(getResources().getColor(R.color.cyan));
         else if(currentTemp >= 0 && currentTemp <= 20)
-            mLinearLayout.setBackgroundColor(Color.BLUE);
+            mLinearLayout.setBackgroundColor(getResources().getColor(R.color.blue));
         else if(currentTemp > 20 && currentTemp <=30)
             mLinearLayout.setBackgroundColor(getResources().getColor(R.color.yellow));
         else
@@ -105,9 +102,8 @@ public class DisplayWeather extends Activity implements LocationListener {
 
 
         } catch (MalformedURLException ex) {
-           // Logger.getLogger(DebugServer.class.getName()).log(Level.SEVERE, null, ex);
+
         } catch (IOException ex) {
-           // Logger.getLogger(DebugServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -115,9 +111,7 @@ public class DisplayWeather extends Activity implements LocationListener {
     public void calculateTemp() {
         try {
             JSONObject js = new JSONObject(sb.toString());
-            //Toast.makeText(this, ""+js, Toast.LENGTH_SHORT).show();
             JSONObject main  = js.getJSONObject("main");
-            //Toast.makeText(this, "2", Toast.LENGTH_SHORT).show();
             JSONArray weather1  = js.getJSONArray("weather");
             for(int i=0;i<weather1.length();i++)
             {
@@ -126,8 +120,6 @@ public class DisplayWeather extends Activity implements LocationListener {
             }
             String t = ""+Math.round((Double.parseDouble(main.getString("temp")))-273);
             weather.setTemp(t);
-            //temp +="|"+ weather.getString("description");
-           // Toast.makeText(this, ""+temp+"|||"+desc, Toast.LENGTH_SHORT).show();
 
         }
         catch (JSONException e) {
@@ -145,7 +137,6 @@ public class DisplayWeather extends Activity implements LocationListener {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.display_weather, menu);
         return true;
     }
@@ -195,20 +186,24 @@ public class DisplayWeather extends Activity implements LocationListener {
     }
     public void getLocation(Weather weather) {
         StrictMode.ThreadPolicy policy = new StrictMode.
-                ThreadPolicy.Builder().permitAll().build();
+        ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-        lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 
+        lm = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
         Criteria criteria = new Criteria();
         bestProvider = lm.getBestProvider(criteria, false);
-        Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        //Location location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        Location location = lm.getLastKnownLocation(bestProvider);
+        if(location == null)
+        {
+            location = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER); //If FPS cannot lock your location
+        }
         if (location != null) {
             longitude = location.getLongitude();
-            weather.setLongitude(Math.floor(longitude * 1000 + 0.5) / 1000);
+            weather.setLongitude(Math.floor(longitude * 1000 + 0.5) / 1000); //Round off longitude and latitude for api call
             latitude = location.getLatitude();
             weather.setLatitude(Math.floor(latitude * 1000 + 0.5) / 1000);
 
-            //Toast.makeText(this, "" + longitude, Toast.LENGTH_SHORT).show();
         } else {
             // leads to the settings because there is no last known location
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);

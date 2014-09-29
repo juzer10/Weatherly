@@ -4,7 +4,7 @@
     <string name="app_name">Weatherly</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="forecast">Forecast</string>
-    <string name="new_forecast">5 -Day Forecast</string>
+    <string name="forecast">Get Forecast</string>
+    <string name="new_forecast">5 - Day Forecast</string>
 
 </resources>

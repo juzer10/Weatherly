@@ -5,9 +5,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,9 +71,9 @@ public class Forecast extends Activity {
     public void setBackground(TextView tv, Weather weather) {
         double currentTemp = Double.parseDouble(weather.getTemp());
         if(currentTemp < 0)
-            tv.setBackgroundColor(Color.CYAN);
+            tv.setBackgroundColor(getResources().getColor(R.color.cyan));
         else if(currentTemp >= 0 && currentTemp <= 20)
-            tv.setBackgroundColor(Color.BLUE);
+            tv.setBackgroundColor(getResources().getColor(R.color.blue));
         else if(currentTemp > 20 && currentTemp <=30)
             tv.setBackgroundColor(getResources().getColor(R.color.yellow));
         else
@@ -140,9 +138,8 @@ public class Forecast extends Activity {
 
 
         } catch (MalformedURLException ex) {
-            // Logger.getLogger(DebugServer.class.getName()).log(Level.SEVERE, null, ex);
+
         } catch (IOException ex) {
-            // Logger.getLogger(DebugServer.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

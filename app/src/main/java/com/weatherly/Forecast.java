@@ -29,6 +29,7 @@ public class Forecast extends Activity {
     double longitude;
     public StringBuilder sb = new StringBuilder();
     Weather weather[];
+    String appid = "cc51abe0a1cc9590aed22875695b2d87";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +114,7 @@ public class Forecast extends Activity {
 
     public void getForecast(double lat, double longi) {
         try {
-            URL u = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?lat="+lat+"&lon="+longi+"&cnt=5&mode=json");
+            URL u = new URL("http://api.openweathermap.org/data/2.5/forecast/daily?lat="+lat+"&lon="+longi+"&appid="+appid+"&cnt=5&mode=json");
             HttpURLConnection c = (HttpURLConnection) u.openConnection();
             c.setRequestMethod("GET");
             c.setRequestProperty("Content-length", "0");
